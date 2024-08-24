@@ -19,11 +19,12 @@
             left: 50%;
             transform: translate(-50%, -50%);
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            font-size: 5vw; /* Responsive font size */
+            font-size: 10vw; /* Responsive font size */
             color: rgba(0, 0, 0, 0.2); /* Light shadow effect */
             font-weight: bold;
             text-transform: uppercase;
             pointer-events: none; /* Prevent interaction with the text */
+            text-align: center;
         }
         #gameOverScreen {
             display: none;
@@ -34,7 +35,7 @@
             text-align: center;
             background: rgba(0, 0, 0, 0.8);
             color: #fff;
-            padding: 10px;
+            padding: 15px;
             border-radius: 10px;
             width: 80%; /* Responsive width */
             max-width: 300px; /* Max width for large screens */
@@ -56,7 +57,7 @@
 </head>
 <body>
     <canvas id="gameCanvas"></canvas>
-    <div id="backgroundText">HELLO DIVYA PAGAL!</div>
+    <div id="backgroundText">HELLO DIVYA!</div>
     <div id="gameOverScreen">
         <h1>Game Over</h1>
         <p>High Score: <span id="highScore">0</span></p>
@@ -69,29 +70,28 @@
         const gameOverScreen = document.getElementById('gameOverScreen');
         const highScoreDisplay = document.getElementById('highScore');
         const retryButton = document.getElementById('retryButton');
+        let canvasWidth = window.innerWidth;
+        let canvasHeight = window.innerHeight;
+        let paddleWidth, paddleHeight;
+        let paddleX;
+        let ballRadius;
+        let ballX, ballY;
+        const paddleSpeed = 7;
+        const ballSpeedY = 4;
+        let score = 0;
+        let highScore = 0;
 
         function resizeCanvas() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
             canvasWidth = canvas.width;
             canvasHeight = canvas.height;
+            paddleWidth = canvasWidth * 0.25;
+            paddleHeight = canvasHeight * 0.02;
+            ballRadius = canvasWidth * 0.03;
+            paddleX = (canvasWidth - paddleWidth) / 2;
             resetGame();
         }
-
-        let canvasWidth = window.innerWidth;
-        let canvasHeight = window.innerHeight;
-        let paddleWidth = canvasWidth * 0.25; // Responsive paddle width
-        let paddleHeight = canvasHeight * 0.02; // Responsive paddle height
-        let paddleX = (canvasWidth - paddleWidth) / 2;
-        const paddleSpeed = 7;
-
-        let ballRadius = canvasWidth * 0.03; // Responsive ball radius
-        let ballX = Math.random() * (canvasWidth - ballRadius * 2) + ballRadius;
-        let ballY = 0;
-        const ballSpeedY = 4;
-
-        let score = 0;
-        let highScore = 0;
 
         function resetGame() {
             paddleX = (canvasWidth - paddleWidth) / 2;
@@ -145,12 +145,23 @@
             update();
         }
 
-        document.addEventListener('mousemove', (e) => {
+        function onMouseMove(e) {
             const rect = canvas.getBoundingClientRect();
             paddleX = e.clientX - rect.left - paddleWidth / 2;
             if (paddleX < 0) paddleX = 0;
             if (paddleX > canvasWidth - paddleWidth) paddleX = canvasWidth - paddleWidth;
-        });
+        }
+
+        function onTouchMove(e) {
+            const touch = e.touches[0];
+            const rect = canvas.getBoundingClientRect();
+            paddleX = touch.clientX - rect.left - paddleWidth / 2;
+            if (paddleX < 0) paddleX = 0;
+            if (paddleX > canvasWidth - paddleWidth) paddleX = canvasWidth - paddleWidth;
+        }
+
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('touchmove', onTouchMove);
 
         retryButton.addEventListener('click', () => {
             resetGame();
@@ -158,7 +169,7 @@
 
         window.addEventListener('resize', resizeCanvas);
 
-        resetGame();
+        resizeCanvas(); // Initial resize
         setInterval(draw, 10);
     </script>
 </body>
